@@ -1,11 +1,14 @@
 ﻿
+using static MachineStatistic.MachineBase;
+
 namespace MachineStatistic
 {
     public interface IMachine
     {
         string EQ { get; }
-        string Department { get; }  
+        string Department { get; }
 
+        void ManualGenerateDataFile(string status);
         void AddStatusMachine(bool status);
 
         void AddStatusMachine(int status);
@@ -19,6 +22,7 @@ namespace MachineStatistic
         void AddStatusMachne(char status);
         void AddStatusMachine(string status);
 
+        event StatusAddedDelegate StatusAdded;
         Statistics GetStatistic(); 
 
 
