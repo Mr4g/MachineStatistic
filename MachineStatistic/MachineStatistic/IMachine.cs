@@ -5,10 +5,10 @@ namespace MachineStatistic
 {
     public interface IMachine
     {
-        string EQ { get; }
+        int EQ { get; }
         string Department { get; }
 
-        void ManualGenerateDataFile(string status);
+        void ManualGenerateDataFile(List<string> status);
         void AddStatusMachine(bool status);
 
         void AddStatusMachine(int status);

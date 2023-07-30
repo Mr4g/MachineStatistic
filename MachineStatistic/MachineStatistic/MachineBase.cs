@@ -7,14 +7,14 @@ namespace MachineStatistic
 
         public abstract event StatusAddedDelegate StatusAdded;
 
-        public MachineBase(string eq, string department)
+        public MachineBase(int eq, string department)
         {
             this.EQ = eq;
             this.Department = department;
         }
-        public string EQ { get; private set; }
+        public int EQ { get; private set; }
         public string Department { get; private set; }
-        public abstract void ManualGenerateDataFile(string status);
+        public abstract void ManualGenerateDataFile(List<string> status);
         public abstract void AddStatusMachine(bool status);
         public abstract void AddStatusMachine(int status);
         public abstract void AddStatusMachine(double status);

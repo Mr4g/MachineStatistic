@@ -1,4 +1,5 @@
-﻿using MachineStatistic;
+﻿using System.ComponentModel.DataAnnotations;
+using MachineStatistic;
 
 string fileName = "";
 string windowWidth = "|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||";
@@ -29,18 +30,20 @@ Console.WriteLine("||                                                           
 Console.WriteLine("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
 Console.WriteLine("");
 Console.WriteLine("");
-
+var dataModel = "";
 bool validDataModel = false;
+MachineCUPP machineCUPP = null; 
+
 while (!validDataModel)
 {
     Console.WriteLine("");
     Console.WriteLine("");
     Console.WriteLine("Wybierz model dodwania danych...");
-
-    
-    var dataModel = Console.ReadLine();
-
-
+    bool vlidationEq = false;
+    int eqVlidation = 0;
+    string departmentVlidation = "";
+    bool vlidationDepartment = false;
+    dataModel = Console.ReadLine();
     switch (dataModel)
     {
         case "g":
@@ -48,68 +51,198 @@ while (!validDataModel)
             Console.WriteLine($"Wybrałeś automatyczne generowanie dannych... {dataModel}");
             Console.WriteLine("");
             Console.WriteLine("");
-            bool validEq = false;
-            string eq = "";
-            while (!validEq)
+
+            while (!vlidationEq)
             {
-                Console.WriteLine("");
-                Console.WriteLine("");
-                Console.WriteLine($"Podaj numer 5-cyfrowy EQ maszyny, znajdziesz go na tabliczce znamionowej");
-                eq = Console.ReadLine();
-                int eqNumber;
-                validEq = int.TryParse(eq, out eqNumber) && eq.Length == 5;
-                if (!validEq)
+                Console.WriteLine($"Podaj numer 5-cyfrowy EQ maszyny... ");
+                string eq = Console.ReadLine();
+                try
                 {
-                    Console.WriteLine("Niepoprawny numer EQ. Podaj 5-cyfrowy numer.");
+                    eqVlidation = Vlidation.VlidationEq(eq);
+                    vlidationEq = true;
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Błąd: {ex.Message}");
+                }
+                Console.WriteLine("");
+                Console.WriteLine("");
             }
-                Console.WriteLine($"EQ maszyny...  {eq}, od teraz już tego parametru nie można zmienić");
-                Console.WriteLine("");
-                Console.WriteLine("");
-            bool validCUPP = false;
-            string department = "";
-            while (!validCUPP)
+            Console.WriteLine($"EQ maszyny...  {eqVlidation}, od teraz już tego parametru nie można zmienić");
+            Console.WriteLine("");
+            Console.WriteLine("");
+
+
+            while (!vlidationDepartment)
             {
                 Console.WriteLine("");
                 Console.WriteLine("");
                 Console.WriteLine($"Podaj dział na którym znajduje się maszyna...");
-                department = Console.ReadLine();
-                validCUPP = !string.IsNullOrEmpty(department) && department.All(c => char.IsLetter(c));
-                if (!validCUPP)
+                string department = Console.ReadLine();
+                try
                 {
-                    Console.WriteLine("Podaj prawidłowy dział gdzie znajduje się maszyna!");
+                    departmentVlidation = Vlidation.VlidationDepartment(department);
+                    vlidationDepartment = true;
+
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Błąd {ex.Message}");
+                }
+                Console.WriteLine("");
+                Console.WriteLine("");
             }
-            department = department.ToUpper();
-            Console.WriteLine($"Dział na którym jest maszyna {department}, od teraz już tego parametru nie można zmienić");
+            Console.WriteLine($"Dział maszyny...  {departmentVlidation}, od teraz już tego parametru nie można zmienić");
             Console.WriteLine("");
             Console.WriteLine("");
-            Console.WriteLine($"Nazwa Twojego pliku to: EQ{eq}_{department}.txt ");
-            fileName = $"EQ{eq}_{department}.txt";
+            fileName = $"EQ{eqVlidation}{departmentVlidation}.txt";
             DataGenerator.GenerateDataFile(fileName);
             validDataModel = true;
             break;
+
+        case "h":
+        case "H":
+            Console.WriteLine($"Wybrałeś ręczne generowanie dannych... {dataModel}");
+            Console.WriteLine("");
+            Console.WriteLine("");
+            while (!vlidationEq)
+            {
+                Console.WriteLine($"Podaj numer 5-cyfrowy EQ maszyny... ");
+                string eq = Console.ReadLine();
+                try
+                {
+                    eqVlidation = Vlidation.VlidationEq(eq);
+                    vlidationEq = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Błąd: {ex.Message}");
+                }
+                Console.WriteLine("");
+                Console.WriteLine("");
+            }
+            Console.WriteLine($"EQ maszyny...  {eqVlidation}, od teraz już tego parametru nie można zmienić");
+            Console.WriteLine("");
+            Console.WriteLine("");
+
+            while (!vlidationDepartment)
+            {
+                Console.WriteLine("");
+                Console.WriteLine("");
+                Console.WriteLine($"Podaj dział na którym znajduje się maszyna...");
+                string department = Console.ReadLine();
+                try
+                {
+                    departmentVlidation = Vlidation.VlidationDepartment(department);
+                    vlidationDepartment = true;
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Błąd {ex.Message}");
+                }
+                Console.WriteLine("");
+                Console.WriteLine("");
+            }
+            Console.WriteLine($"Dział maszyny...  {departmentVlidation}, od teraz już tego parametru nie można zmienić");
+            Console.WriteLine("");
+            Console.WriteLine("");
+            validDataModel = true;
+            machineCUPP = new MachineCUPP(eqVlidation, departmentVlidation);
+            break;
+
         default:
             Console.WriteLine($"Klawisz nie odpowada żadnemu modelowi danych.. Wprowadz poprawny!");
             break;
     }
 }
 
-Console.WriteLine("");
-Console.WriteLine("");
-Console.WriteLine("Statystyki wygenerowanego pliku...");
+if (dataModel == "g")
+{
+    Console.WriteLine("");
+    Console.WriteLine("");
+    Console.WriteLine("Statystyki wygenerowanego pliku...");
 
 
-Statistics statisticsFromFile = new Statistics();
-statisticsFromFile.CalculateUtilization(fileName);
-Console.WriteLine("");
-Console.WriteLine($"Utyliacja wynosi: {statisticsFromFile.Utilization:N2}");
-Console.WriteLine($"OEE wynosi: {statisticsFromFile.OEE:N2}");
-Console.WriteLine($"Waiting wynosi: {statisticsFromFile.Waiting:N2}");
-Console.WriteLine($"Quality wynosi: {statisticsFromFile.Quality:N2}");
-Console.WriteLine($"Parts OK wynosi: {statisticsFromFile.Passed}");
-Console.WriteLine($"Parts NOK wynosi: {statisticsFromFile.Failed}");
-Console.WriteLine($"Parts Total wynosi: {statisticsFromFile.TotalParts}");
+    Statistics statisticsFromFile = new Statistics();
+    statisticsFromFile.CalculateUtilization(fileName);
+    Console.WriteLine("");
+    Console.WriteLine($"Utyliacja wynosi: {statisticsFromFile.Utilization:N2}");
+    Console.WriteLine($"OEE wynosi: {statisticsFromFile.OEE:N2}");
+    Console.WriteLine($"Waiting wynosi: {statisticsFromFile.Waiting:N2}");
+    Console.WriteLine($"Quality wynosi: {statisticsFromFile.Quality:N2}");
+    Console.WriteLine($"Parts OK wynosi: {statisticsFromFile.Passed}");
+    Console.WriteLine($"Parts NOK wynosi: {statisticsFromFile.Failed}");
+    Console.WriteLine($"Parts Total wynosi: {statisticsFromFile.TotalParts}");
+}
+else if (dataModel == "h")
+{
+    Console.WriteLine("");
+    Console.WriteLine("");
+    Console.WriteLine($"Prawidłowo statusy to true lub false, 0 lub 1...");
+    
+
+    while(true)
+    {
+        var count = 0;
+        Console.WriteLine("");
+        Console.WriteLine("");
+
+        while (true)
+        {
+            Console.WriteLine("\nPodaj status Producing ... ");
+            string status = Console.ReadLine();
+            HandleStatus(status, machineCUPP);
+
+            Console.WriteLine("\nPodaj status Waiting ... ");
+            status = Console.ReadLine();
+            HandleStatus(status, machineCUPP);
+
+            Console.WriteLine("\nPodaj status PartsOk ... ");
+            status = Console.ReadLine();
+            HandleStatus(status, machineCUPP);
+
+            Console.WriteLine("\nPodaj status PartsNok ... ");
+            status = Console.ReadLine();
+            HandleStatus(status, machineCUPP);
+            if (machineCUPP.machineStatus.Count == 4)
+            {           
+                machineCUPP.StatusValidation();
+                count++;
+                Console.WriteLine($"Dodano prawidłowo {count} status maszyny.. ");
+            }
+            else
+            {
+                machineCUPP.ClearStatus();
+                Console.WriteLine($"Podano niepoprawne statusy proszę ponowić próbe dodania statusów {machineCUPP.machineStatus}");
+            }
+
+            
+            Console.WriteLine($"");
+            Console.WriteLine($"Jeśli chcesz przerwać wciśnij 'q' jeśli chcesz kontunować to dowolny klawisz..");
+            var input = Console.ReadLine();
+            if (input=="q")
+            {
+                break;
+            }
+        }
+    }
+    static void HandleStatus(string status, MachineCUPP machineCUPP)
+    {
+        try
+        {
+            machineCUPP.AddStatusMachine(status);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"{ex}");
+        }
+    }
+
+}
+
+
+
 
 
 
