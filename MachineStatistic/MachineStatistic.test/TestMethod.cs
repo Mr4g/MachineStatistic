@@ -31,7 +31,6 @@ namespace MachineStatistic.test
             machine.AddStatusMachine("false");
             machine.AddStatusMachine("false");
             machine.AddStatusMachine("false");
-
             // Act
             machine.StatusValidation();
         }
