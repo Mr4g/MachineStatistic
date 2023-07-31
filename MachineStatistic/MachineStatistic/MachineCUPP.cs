@@ -11,6 +11,8 @@ namespace MachineStatistic
         private DateTime currentTime;
         public List<string> machineStatus { get; private set; }
 
+        public bool errorValidation { get; private set; }   
+
         public override event StatusAddedDelegate StatusAdded;
 
         public string FileName { get; private set; }
@@ -82,6 +84,7 @@ namespace MachineStatistic
         public void StatusValidation()
         {
             var index = 0;
+            errorValidation = false;
             foreach (var stat in machineStatus)
             {
                 switch (index)
@@ -91,28 +94,28 @@ namespace MachineStatistic
                     case 1: // Waiting
                         if (machineStatus[1] == "true" && machineStatus[0] == "true")
                         {
-                            Console.WriteLine("Błąd walidacji: Waiting nie może występować, gdy Producing występuje..");
-                            return;
+                            errorValidation = true;
+                            throw new Exception ("Błąd walidacji: Waiting nie może występować, gdy Producing występuje..");
                         }
                         break;
                     case 2: // Parts NOK
-                        if (machineStatus[1] == "true" && machineStatus[3] == "true")
+                        if (machineStatus[1] == "true" && machineStatus[2] == "true")
                         {
-                            Console.WriteLine("Błąd walidacji: Waiting nie może wystapić gdy PartsOK jest true..");
-                            return;
+                            errorValidation = true;
+                            throw new Exception("Błąd walidacji: Waiting nie może wystapić gdy PartsOK jest true..");
                         }
                         break;
                     case 3:
                         {
                             if (machineStatus[1] == "false" && machineStatus[0] == "false")
                             {
-                                Console.WriteLine("Błąd walidacji: Maszyna musi zgłosić któryś z sygnałów... Producing/Waiting \nw tej wersji nie zakładamy, że maszyna jest wyłączona wykup dodatkową subskrybcję a dodamy ten stgnał...");
-                                return;
+                                errorValidation = true;
+                                throw new Exception("Błąd walidacji: Maszyna musi zgłosić któryś z sygnałów... Producing/Waiting \nw tej wersji nie zakładamy, że maszyna jest wyłączona wykup \ndodatkową subskrybcję a dodamy ten stgnał...");
                             }
                             if (machineStatus[2] == "true" && machineStatus[3] == "true")
                             {
-                                Console.WriteLine("Błąd walidacji: nie mogą być jednoszcześnie PartsOK i PartsNOK");
-                                return;
+                                errorValidation = true;
+                                throw new Exception("Błąd walidacji: nie mogą być jednoszcześnie PartsOK i PartsNOK");
                             }
                         }
                         break;
@@ -122,7 +125,10 @@ namespace MachineStatistic
                 }
                 index++;
             }
-            ManualGenerateDataFile(machineStatus);
+            if (!errorValidation)
+            {
+                ManualGenerateDataFile(machineStatus);
+            }
             machineStatus.Clear();
         }
 

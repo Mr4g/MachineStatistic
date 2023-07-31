@@ -32,7 +32,7 @@ Console.WriteLine("");
 Console.WriteLine("");
 var dataModel = "";
 bool validDataModel = false;
-MachineCUPP machineCUPP = null; 
+MachineCUPP machineCUPP = null;
 
 while (!validDataModel)
 {
@@ -72,7 +72,6 @@ while (!validDataModel)
             Console.WriteLine("");
             Console.WriteLine("");
 
-
             while (!vlidationDepartment)
             {
                 Console.WriteLine("");
@@ -83,7 +82,6 @@ while (!validDataModel)
                 {
                     departmentVlidation = Vlidation.VlidationDepartment(department);
                     vlidationDepartment = true;
-
                 }
                 catch (Exception ex)
                 {
@@ -99,7 +97,6 @@ while (!validDataModel)
             DataGenerator.GenerateDataFile(fileName);
             validDataModel = true;
             break;
-
         case "h":
         case "H":
             Console.WriteLine($"Wybrałeś ręczne generowanie dannych... {dataModel}");
@@ -135,7 +132,6 @@ while (!validDataModel)
                 {
                     departmentVlidation = Vlidation.VlidationDepartment(department);
                     vlidationDepartment = true;
-
                 }
                 catch (Exception ex)
                 {
@@ -150,7 +146,6 @@ while (!validDataModel)
             validDataModel = true;
             machineCUPP = new MachineCUPP(eqVlidation, departmentVlidation);
             break;
-
         default:
             Console.WriteLine($"Klawisz nie odpowada żadnemu modelowi danych.. Wprowadz poprawny!");
             break;
@@ -162,8 +157,6 @@ if (dataModel == "g")
     Console.WriteLine("");
     Console.WriteLine("");
     Console.WriteLine("Statystyki wygenerowanego pliku...");
-
-
     Statistics statisticsFromFile = new Statistics();
     statisticsFromFile.CalculateUtilization(fileName);
     Console.WriteLine("");
@@ -174,15 +167,15 @@ if (dataModel == "g")
     Console.WriteLine($"Parts OK wynosi: {statisticsFromFile.Passed}");
     Console.WriteLine($"Parts NOK wynosi: {statisticsFromFile.Failed}");
     Console.WriteLine($"Parts Total wynosi: {statisticsFromFile.TotalParts}");
+    Console.ReadKey();
 }
 else if (dataModel == "h")
 {
     Console.WriteLine("");
     Console.WriteLine("");
     Console.WriteLine($"Prawidłowo statusy to true lub false, 0 lub 1...");
-    
 
-    while(true)
+    while (true)
     {
         var count = 0;
         Console.WriteLine("");
@@ -206,25 +199,57 @@ else if (dataModel == "h")
             status = Console.ReadLine();
             HandleStatus(status, machineCUPP);
             if (machineCUPP.machineStatus.Count == 4)
-            {           
-                machineCUPP.StatusValidation();
-                count++;
-                Console.WriteLine($"Dodano prawidłowo {count} status maszyny.. ");
+            {
+                try
+                {
+                    machineCUPP.StatusValidation();
+                }
+                catch (Exception ex)
+                {
+                    machineCUPP.ClearStatus();
+                    Console.WriteLine(ex);
+                }
+                if (!machineCUPP.errorValidation)
+                {
+                    count++;
+                    Console.WriteLine($"Dodano prawidłowo {count} status maszyny.. ");
+                }
             }
             else
             {
                 machineCUPP.ClearStatus();
                 Console.WriteLine($"Podano niepoprawne statusy proszę ponowić próbe dodania statusów {machineCUPP.machineStatus}");
             }
-
-            
             Console.WriteLine($"");
             Console.WriteLine($"Jeśli chcesz przerwać wciśnij 'q' jeśli chcesz kontunować to dowolny klawisz..");
-            var input = Console.ReadLine();
-            if (input=="q")
+            string inputExit = Console.ReadLine();
+            if (inputExit == "q")
             {
                 break;
             }
+        }
+        Console.WriteLine("");
+        Console.WriteLine("");
+        Console.WriteLine("Statystyki wygenerowanego pliku...");
+
+
+        Statistics statisticsFromFile = new Statistics();
+        statisticsFromFile.CalculateUtilization(machineCUPP.FileName);
+        Console.WriteLine("");
+        Console.WriteLine($"Utyliacja wynosi: {statisticsFromFile.Utilization:N2}");
+        Console.WriteLine($"OEE wynosi: {statisticsFromFile.OEE:N2}");
+        Console.WriteLine($"Waiting wynosi: {statisticsFromFile.Waiting:N2}");
+        Console.WriteLine($"Quality wynosi: {statisticsFromFile.Quality:N2}");
+        Console.WriteLine($"Parts OK wynosi: {statisticsFromFile.Passed}");
+        Console.WriteLine($"Parts NOK wynosi: {statisticsFromFile.Failed}");
+        Console.WriteLine($"Parts Total wynosi: {statisticsFromFile.TotalParts}");
+
+        Console.WriteLine($"");
+        Console.WriteLine($"Jeśli chcesz przerwać wciśnij 'q' jeśli chcesz kontunować to dowolny klawisz..");
+        var inputExitApp = Console.ReadLine();
+        if (inputExitApp == "q")
+        {
+            break;
         }
     }
     static void HandleStatus(string status, MachineCUPP machineCUPP)
@@ -238,59 +263,6 @@ else if (dataModel == "h")
             Console.WriteLine($"{ex}");
         }
     }
-
 }
 
 
-
-
-
-
-
-
-//var Stern1 = new MachineCUPP("85454", "CUPP");
-
-//while (true)
-//{
-//    Console.WriteLine("Podaj status maszyny : ");
-//    var input = Console.ReadLine();
-
-//    if (input == "q")
-//    {
-//        break;
-//    }
-
-//    try
-//    {
-//        Stern1.ManualGenerateDataFile(input);
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine(ex.ToString());
-//    }
-
-
-//}
-
-
-
-
-
-
-//DataGenerator Stern1 = new DataGenerator();
-//DataGenerator.GenerateDataFile();
-//Console.WriteLine($"Plik został wygenerowany");
-
-//string filePath = "Stern1.txt";
-//Statistics statistics = new Statistics();
-//statistics.CalculateUtilization(filePath);
-//statistics.MostEfficient(filePath);
-
-
-// Możesz teraz odczytać wartość utylizacji
-
-//Console.WriteLine($"Utilization = {statistics.Utilization}");
-//Console.WriteLine($"PartsOK = {statistics.Passed}");
-//Console.WriteLine($"PartsNOK = {statistics.Failed}");
-//Console.WriteLine($"Quality = {statistics.Quality}");
-//Console.WriteLine($"MostEfficientPeriod = {statistics.MostEfficientPeriod}");
